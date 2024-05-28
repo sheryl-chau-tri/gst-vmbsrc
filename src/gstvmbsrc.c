@@ -1482,7 +1482,10 @@ VmbError_t apply_feature_settings(GstVmbSrc *vmbsrc)
     // camera obtained from VmbFeaturesList() is used to determine which set/get function to use.
 
     GST_DEBUG_OBJECT(vmbsrc, "Setting \"ExposureTime\" to %f", vmbsrc->properties.exposuretime);
-    VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTime", vmbsrc->properties.exposuretime);
+    // VmbError_t result;
+    VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTime", 97.938);
+    // VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTimeAbs", 1000.0);
+
     if (result == VmbErrorSuccess)
     {
         GST_DEBUG_OBJECT(vmbsrc, "Setting was changed successfully");
