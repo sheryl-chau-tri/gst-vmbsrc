@@ -238,3 +238,7 @@ The following library versions have been validated to work with vmbsrc:
 - Vimba X 2023-1
 - GStreamer 1.20 (Ubuntu 22.04)
 - GStreamer 1.16 (NVIDIA L4T 35.2.1)
+
+# Command
+`cmake --preset linux64 -D Vmb_DIR=/opt/VimbaX_2023-4/api/lib/cmake/vmb && cmake --build build-linux64`
+`sudo cp build-linux64/libgstvmbsrc.so /usr/lib/x86_64-linux-gnu/gstreamer-1.0`

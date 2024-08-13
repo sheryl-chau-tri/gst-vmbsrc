@@ -1473,50 +1473,52 @@ VmbError_t apply_feature_settings(GstVmbSrc *vmbsrc)
         stop_image_acquisition(vmbsrc);
     }
     GEnumValue *enum_entry;
-
+    VmbError_t result;
     // exposure time
     // TODO: Workaround for cameras with legacy "ExposureTimeAbs" feature should be replaced with a general legacy
     // feature name handling approach: A static table maps each property, e.g. "exposuretime", to a list of (feature
     // name, set function, get function) pairs, e.g. [("ExposureTime", setExposureTime, getExposureTime),
     // ("ExposureTimeAbs", setExposureTimeAbs, getExposureTimeAbs)]. On startup, the feature list of the connected
     // camera obtained from VmbFeaturesList() is used to determine which set/get function to use.
+    if (vmbsrc->properties.exposuretime > 0.0) {
+    
+        GST_DEBUG_OBJECT(vmbsrc, "Setting \"ExposureTime\" to %f", vmbsrc->properties.exposuretime);
+        // VmbError_t result;
+        // VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTime", 97.938);
+        // VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTime", 3999.135);
+        result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTime", (float)vmbsrc->properties.exposuretime);
 
-    GST_DEBUG_OBJECT(vmbsrc, "Setting \"ExposureTime\" to %f", vmbsrc->properties.exposuretime);
-    // VmbError_t result;
-    VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTime", 97.938);
-    // VmbError_t result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTimeAbs", 1000.0);
-
-    if (result == VmbErrorSuccess)
-    {
-        GST_DEBUG_OBJECT(vmbsrc, "Setting was changed successfully");
-    }
-    else if (result == VmbErrorNotFound)
-    {
-        GST_WARNING_OBJECT(vmbsrc,
-                           "Failed to set \"ExposureTime\" to %f. Return code was: %s Attempting \"ExposureTimeAbs\"",
-                           vmbsrc->properties.exposuretime,
-                           ErrorCodeToMessage(result));
-        result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTimeAbs", vmbsrc->properties.exposuretime);
         if (result == VmbErrorSuccess)
         {
             GST_DEBUG_OBJECT(vmbsrc, "Setting was changed successfully");
         }
+        else if (result == VmbErrorNotFound)
+        {
+            GST_WARNING_OBJECT(vmbsrc,
+                            "Failed to set \"ExposureTime\" to %f. Return code was: %s Attempting \"ExposureTimeAbs\"",
+                            vmbsrc->properties.exposuretime,
+                            ErrorCodeToMessage(result));
+            result = VmbFeatureFloatSet(vmbsrc->camera.handle, "ExposureTimeAbs", vmbsrc->properties.exposuretime);
+            if (result == VmbErrorSuccess)
+            {
+                GST_DEBUG_OBJECT(vmbsrc, "Setting was changed successfully");
+            }
+            else
+            {
+                GST_WARNING_OBJECT(vmbsrc,
+                                "Failed to set \"ExposureTimeAbs\" to %f. Return code was: %s",
+                                vmbsrc->properties.exposuretime,
+                                ErrorCodeToMessage(result));
+            }
+        }
         else
         {
             GST_WARNING_OBJECT(vmbsrc,
-                               "Failed to set \"ExposureTimeAbs\" to %f. Return code was: %s",
-                               vmbsrc->properties.exposuretime,
-                               ErrorCodeToMessage(result));
+                            "Failed to set \"ExposureTime\" to %f. Return code was: %s",
+                            vmbsrc->properties.exposuretime,
+                            ErrorCodeToMessage(result));
         }
     }
-    else
-    {
-        GST_WARNING_OBJECT(vmbsrc,
-                           "Failed to set \"ExposureTime\" to %f. Return code was: %s",
-                           vmbsrc->properties.exposuretime,
-                           ErrorCodeToMessage(result));
-    }
-
     // Exposure Auto
     enum_entry = g_enum_get_value(g_type_class_ref(GST_ENUM_EXPOSUREAUTO_MODES), vmbsrc->properties.exposureauto);
     GST_DEBUG_OBJECT(vmbsrc, "Setting \"ExposureAuto\" to %s", enum_entry->value_nick);
